@@ -1,0 +1,57 @@
+services:
+  honeypot:
+    build: .
+    container_name: honeypot
+    restart: unless-stopped
+    
+    ports:
+      - "30012:30012"
+    
+    environment:
+      - HONEYPOT_PORT=30012
+      - HONEYPOT_HOST=0.0.0.0
+      - LOG_DIR=/logs
+      - MAX_PAYLOAD_SIZE=65536
+      - CONNECTION_TIMEOUT=300
+      - MAX_LOG_SIZE_MB=1000
+    
+    volumes:
+      - ./logs:/logs:rw
+    
+    networks:
+      - honeypot_isolated
+    
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    
+    security_opt:
+      - no-new-privileges:true
+    
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=10M
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 32M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  honeypot_isolated:
+    driver: bridge
+    internal: true  # Toggle to allow host access for testing (true=production / false=testing)
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
