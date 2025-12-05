@@ -442,7 +442,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let config = Config::from_env();
 
-    info!("Starting Honeypot Server");
+    info!("Starting Honeypot Server v{}", env!("CARGO_PKG_VERSION"));
     info!(
         "Configuration: Host={}, Port={}",
         config.listen_host, config.listen_port
